@@ -2,22 +2,57 @@
     ViewData["Title"] = "Bingewatch";
 }
 @using Personalized_movie_recommendation_system.Infrastructure
+@using Newtonsoft.Json
+
 @inject IMovieRecommandationService service
+@inject UserManager<User> userManger
 
 @if (User.Identity.IsAuthenticated)
 {
+    <script>
+
+        function switchFavorite(id) {
+            if ($("#f-" + id).html() == "Remove from my list")
+                removeFavorite(id);
+            else addFavorite(id);
+        }
+
+        function addFavorite(id) {
+
+             $.ajax({ url: '/API/AddFavorite?id='+ id, 
+              type: 'POST', 
+                 success: function (res) {
+                     console.log(res);
+                     $("#f-" + id).html("Remove from my list");
+                 }, 
+              error: function(error) { console.log(error)} 
+              });
+        }
+
+         function removeFavorite(id) {
+
+             $.ajax({ url: '/API/RemoveFavorite?id='+ id, 
+              type: 'POST', 
+                 success: function (res) {
+                     console.log(res);
+                     $("#f-" + id).html("Add to my list");
+                 },
+              error: function(error) { console.log(error)} 
+              });
+        }
+
+    </script>
     @model IEnumerable<Movie>
 
-   var movies = service.GetRecommendedMovies();
-    
-
+    var movies = service.GetRecommendedMovies();
+    var favorites = JsonConvert.DeserializeObject<List<int>>((await userManger.FindByNameAsync(User.Identity.Name)).Favorites_Json);
     @for (var i = 0; i < movies.Count; i++)
     {
         @if (i % 2 == 0)
         {
              @:<div class="row">
         }
-
+        string btnMessage = (favorites.Contains(movies[i].Id)) ? "Remove from my list" : "Add to my list";
         <div class="col-sm-6 col-md-4">
             <div class="thumbnail">
                 <img src="@("api/images?name=" + movies[i].ImageUrl)" alt="..." width="200">
@@ -25,7 +60,7 @@
                     <h3>@movies[i].Title</h3>
                     <h5>Rating: @movies[i].Rating</h5>
                     <p>@(movies[i].Description.Substring(0, (movies[i].Description.Length < 200) ? movies[i].Description.Length : 200) + ((movies[i].Description.Length >= 200) ? "..." : string.Empty))</p>
-                    <p><a href="/Movie/MoviePage?id=@movies[i].Id" class="btn btn-primary" role="button">Read more</a> <a href="#" class="btn btn-default" role="button">Add to My List</a></p>
+                    <p><a href="/Movie/MoviePage?id=@movies[i].Id" class="btn btn-primary" role="button">Read more</a> <a class="btn btn-default" id="f-@movies[i].Id" role="button" onclick="switchFavorite(@movies[i].Id);">@btnMessage</a></p>
                 </div>
             </div>
         </div>

@@ -61,7 +61,7 @@ namespace TheMovieDb.API
                     Console.WriteLine("Downloading page " + i + "...");
                     JsonConvert.DeserializeObject<Rootobject>((new System.Net.WebClient()).DownloadString("https://api.themoviedb.org/3/discover/movie?api_key=1b6317b113e3b3650be749f272d69cf8&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=" + i)).results.ToList().ForEach(res =>
                     {
-                        using (SqlCommand command = new SqlCommand(string.Format("INSERT INTO dbo.Movies (Id, Title, Description, ReleaseDate, Rating, GenreId, ImageUrl, VoteCount, Image) VALUES (@id, @Title, @Description, @ReleaseDate, @Rating, @GenreId, @ImageUrl, @Votes, @Image)")) { Connection = connection })
+                        using (SqlCommand command = new SqlCommand(string.Format("INSERT INTO dbo.Movies (Id, Title, Description, ReleaseDate, Rating, GenreId, ImageUrl, VoteCount, Image, Video, VideoUrl) VALUES (@id, @Title, @Description, @ReleaseDate, @Rating, @GenreId, @ImageUrl, @Votes, @Image, @Video, @VideoUrl)")) { Connection = connection })
                         {
                             command.Parameters.AddWithValue("@id", res.id);
                             command.Parameters.AddWithValue("@Title", res.title);
@@ -72,11 +72,21 @@ namespace TheMovieDb.API
                             command.Parameters.AddWithValue("@ImageUrl", res.poster_path);
                             command.Parameters.AddWithValue("@Votes", res.vote_count);
 
-                            //https://image.tmdb.org/t/p/w500/6kXW9b1FZXvB3l0mLMDbKwGgL3P.jpg
+                            
                             if (!File.Exists("temp" + res.poster_path))
                                 (new System.Net.WebClient()).DownloadFile("https://image.tmdb.org/t/p/w500" + res.poster_path, "temp" + res.poster_path);
                             byte[] data = System.IO.File.ReadAllBytes("temp" + res.poster_path);
                             command.Parameters.Add("@Image", SqlDbType.VarBinary, -1).Value = data;
+
+                            command.Parameters.AddWithValue("@Video", res.video);
+
+                            if(res.video)
+                            {
+                                var v = JsonConvert.DeserializeObject<VideoRootObject.Rootobject>((new System.Net.WebClient()).DownloadString("https://api.themoviedb.org/3/movie/" + i + "/videos?api_key=1b6317b113e3b3650be749f272d69cf8&language=en-US")).results.ToList().First();
+
+                                string url = "https://" + v.site + ;
+                                command.Parameters.AddWithValue("@VideoUrl", url);
+                            }
 
                             command.ExecuteNonQuery();
                         }

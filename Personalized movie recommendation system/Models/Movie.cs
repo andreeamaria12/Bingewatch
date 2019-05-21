@@ -33,6 +33,10 @@ namespace Personalized_movie_recommendation_system.Models
 
         [Column(TypeName = "varchar(200)")]
         public string ImageUrl { get; set; }
+
+        public bool Video { get; set; }
+
+        public string VideoUrl { get; set; }
        
     }
 }

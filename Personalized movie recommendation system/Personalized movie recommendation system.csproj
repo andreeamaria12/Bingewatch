@@ -9,12 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\AppDbContext.cs" />
+    <Compile Remove="Data\Migrations\20190517234651_MovieDB.cs" />
+    <Compile Remove="Data\Migrations\20190517234651_MovieDB.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190521121517_Updated-User.cs" />
+    <Compile Remove="Data\Migrations\20190521121517_Updated-User.Designer.cs" />
     <Compile Remove="Infrastructure\UserRoleTagHelper.cs" />
     <Compile Remove="Models\EFMovieRepository.cs" />
     <Compile Remove="Models\GenreRepository.cs" />
     <Compile Remove="Models\IGenreRepository.cs" />
     <Compile Remove="Models\IMovieRepository.cs" />
     <Compile Remove="Models\MovieList.cs" />
+    <Compile Remove="Models\SeedData.cs" />
   </ItemGroup>
 
 
@@ -28,6 +34,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

@@ -32,7 +32,7 @@ namespace Personalized_movie_recommendation_system.Data
             string adminPassword = configuration["Data:AdminUser:Password"];
             string adminRole = configuration["Data:AdminUser:Role"];
             string userRole = configuration["Data:UserRole"];
-
+            
             if (await userManager.FindByNameAsync(adminUsername) == null)
             {
                 if (await roleManager.FindByNameAsync(adminRole) == null)

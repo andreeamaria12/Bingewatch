@@ -44,9 +44,6 @@ namespace Personalized_movie_recommendation_system
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            /*services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));*/
             services.AddDefaultIdentity<User>(opts => {
                 opts.User.RequireUniqueEmail = true;
             }).AddRoles<IdentityRole>().AddDefaultUI(UIFramework.Bootstrap4)
