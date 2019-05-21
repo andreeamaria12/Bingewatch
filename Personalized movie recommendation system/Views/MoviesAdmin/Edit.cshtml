@@ -1,0 +1,39 @@
+﻿@model Movie
+@{
+    ViewData["Title"] = "Edit Movie";
+    Layout = "_AdminLayout";
+}
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label asp-for="Title"></label>
+            <div><span asp-validation-for="Title" class="text-danger">s</span></div>
+            <input asp-for="Title" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label asp-for="Description"></label>
+            <div><span asp-validation-for="Description" class="text-danger">s</span></div>
+            <textarea asp-for="Description" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+            <label asp-for="ReleaseDate"></label>
+            <div><span asp-validation-for="ReleaseDate" class="text-danger">s</span></div>
+            <input asp-for="ReleaseDate" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label asp-for="Rating"></label>
+            <div><span asp-validation-for="Rating" class="text-danger">s</span></div>
+            <input asp-for="Rating" class="form-control" />
+        </div>
+        <div class="form-group">
+            <select asp-for="GenreId" asp-items="ViewBag.Genres">
+                <option disabled selected value="">Select a Genre</option>
+            </select>
+        </div>
+        <div class="text-center">
+            <button class="btn btn-primary" type="submit">Save</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+

@@ -1,0 +1,21 @@
+﻿
+@{
+    ViewData["Title"] = "MoviePage";
+}
+@model Movie
+@inject ApplicationDbContext context
+<div>
+    <div class="container">
+        <div class="d-inline-block align-top">
+            <img class="d-inline" src="@("/api/images?name=" + Model.ImageUrl)" alt="..." width="200">
+        </div>
+        <div class="d-inline-block align-top" style="max-width:500px;">
+            <h2>@Model.Title</h2>
+            <h5>@context.Genres.Where(g => g.Id == Model.GenreId).FirstOrDefault().Name</h5>
+            <h5>Rating: @Model.Rating</h5>
+            <h5>@(DateTime.Parse(Model.ReleaseDate).Year)</h5>
+            <h5>@Model.Description</h5>
+        </div>
+    </div>
+</div>
+
