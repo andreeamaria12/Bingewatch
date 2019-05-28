@@ -46,15 +46,26 @@ namespace Personalized_movie_recommendation_system.Controllers
         {
             if (!_context.Movies.Any(m => m.Id == id))
                 return NotFound();
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            List<int> favorites = JsonConvert.DeserializeObject<List<int>>(user.Favorites_Json);
-            if (!favorites.Contains(id))
+            User user = await _userManager.FindByNameAsync(User.Identity.Name);
+            Movie movie = _context.Movies.First(m => m.Id == id);
+
+            FavoriteMovie favoriteMovie = new FavoriteMovie
             {
-                favorites.Add(id);
-                user.Favorites_Json = JsonConvert.SerializeObject(favorites);
-                await _userManager.UpdateAsync(user);
-            }
-            return Created("test", user.Favorites_Json);
+                UserId = user.Id,
+                User = user,
+                MovieId = id,
+                Movie = movie
+            };
+            _context.FavoriteMovies.Add(favoriteMovie);
+
+            user.Favorites = user.Favorites ?? new List<FavoriteMovie>();
+            user.Favorites.Add(favoriteMovie);
+
+            movie.UserFavorite = movie.UserFavorite ?? new List<FavoriteMovie>();
+            movie.UserFavorite.Add(favoriteMovie);
+
+
+            return Created("test", user.Favorites.Select(fav => fav.MovieId));
         }
 
         [Route("RemoveFavorite")]
@@ -64,17 +75,18 @@ namespace Personalized_movie_recommendation_system.Controllers
         {
             if (!_context.Movies.Any(m => m.Id == id))
                 return NotFound();
+
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            List<int> favorites = JsonConvert.DeserializeObject<List<int>>(user.Favorites_Json);
 
-            if(favorites.Contains(id))
-            {
-                favorites.Remove(id);
-                user.Favorites_Json = JsonConvert.SerializeObject(favorites);
+            if (!user.Favorites.Any(fav => fav.MovieId == id))
+                return NotFound();
 
-                await _userManager.UpdateAsync(user);
-            }
-            return Created("test", user.Favorites_Json);
+            FavoriteMovie favoriteMovie = user.Favorites.First(fav => fav.MovieId == id);
+            user.Favorites.Remove(favoriteMovie);
+            _context.Movies.First(m => m.Id == id).UserFavorite.Remove(favoriteMovie);
+            _context.FavoriteMovies.Remove(favoriteMovie);
+
+            return Created("test", user.Favorites);
         }
     }
 }

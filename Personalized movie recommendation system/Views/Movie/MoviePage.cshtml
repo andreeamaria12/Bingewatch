@@ -11,10 +11,11 @@
         </div>
         <div class="d-inline-block align-top" style="max-width:500px;">
             <h2>@Model.Title</h2>
-            <h5>@context.Genres.Where(g => g.Id == Model.GenreId).FirstOrDefault().Name</h5>
-            <h5>Rating: @Model.Rating</h5>
-            <h5>@(DateTime.Parse(Model.ReleaseDate).Year)</h5>
+            <h5>@context.Genres.Where(g => g.Id == Model.GenreId).FirstOrDefault().Name | @Model.Rating | @(DateTime.Parse(Model.ReleaseDate).Year)</h5>
             <h5>@Model.Description</h5>
+        </div>
+        <div class="align-content-lg-center">
+            <iframe width="600" height="400" src="@Model.VideoUrl"></iframe>
         </div>
     </div>
 </div>

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Personalized_movie_recommendation_system.Data;
 using Personalized_movie_recommendation_system.Infrastructure;
 using Personalized_movie_recommendation_system.Models;
@@ -23,6 +24,7 @@ namespace Personalized_movie_recommendation_system.Controllers
 
         public IActionResult Index()
         {
+
             if (User.Identity.IsAuthenticated)
                 return View(_context.Movies);
             else

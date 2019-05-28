@@ -14,6 +14,12 @@
     <Compile Remove="Data\Migrations\20190517234651_MovieDB.Designer.cs" />
     <Compile Remove="Data\Migrations\20190521121517_Updated-User.cs" />
     <Compile Remove="Data\Migrations\20190521121517_Updated-User.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190524125809_FavMovies.cs" />
+    <Compile Remove="Data\Migrations\20190524125809_FavMovies.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190524131824_moviesFav.cs" />
+    <Compile Remove="Data\Migrations\20190524131824_moviesFav.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190524133153_FavMovies.cs" />
+    <Compile Remove="Data\Migrations\20190524133153_FavMovies.Designer.cs" />
     <Compile Remove="Infrastructure\UserRoleTagHelper.cs" />
     <Compile Remove="Models\EFMovieRepository.cs" />
     <Compile Remove="Models\GenreRepository.cs" />
@@ -34,11 +40,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

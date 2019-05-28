@@ -22,6 +22,25 @@ namespace Personalized_movie_recommendation_system.Data
 
         public DbSet<Genre> Genres { get; set; }
 
+        public DbSet<FavoriteMovie> FavoriteMovies { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<FavoriteMovie>()
+                .HasKey(x => new { x.MovieId, x.UserId });
+            builder.Entity<FavoriteMovie>()
+                .HasOne(x => x.User)
+                .WithMany(u => u.Favorites)
+                .HasForeignKey(x => x.UserId);
+            builder.Entity<FavoriteMovie>()
+                .HasOne(x => x.Movie)
+                .WithMany(m => m.UserFavorite)
+                .HasForeignKey(x => x.MovieId);
+
+        }
+
         public static async Task CreateAdminAccountAndRoles(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             UserManager<User> userManager = serviceProvider.GetRequiredService<UserManager<User>>();

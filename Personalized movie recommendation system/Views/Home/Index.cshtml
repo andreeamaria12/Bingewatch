@@ -45,14 +45,14 @@
     @model IEnumerable<Movie>
 
     var movies = service.GetRecommendedMovies();
-    var favorites = JsonConvert.DeserializeObject<List<int>>((await userManger.FindByNameAsync(User.Identity.Name)).Favorites_Json);
+    User user = await userManger.FindByNameAsync(User.Identity.Name);
     @for (var i = 0; i < movies.Count; i++)
     {
-        @if (i % 2 == 0)
+        @if (i % 3 == 0)
         {
              @:<div class="row">
         }
-        string btnMessage = (favorites.Contains(movies[i].Id)) ? "Remove from my list" : "Add to my list";
+        string btnMessage = movies[i].UserFavorite.Any(x=>x.UserId == user.Id) ? "Remove from my list" : "Add to my list";
         <div class="col-sm-6 col-md-4">
             <div class="thumbnail">
                 <img src="@("api/images?name=" + movies[i].ImageUrl)" alt="..." width="200">
@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        @if (i % 2 == 1 || i == movies.Count - 1)
+        @if (i % 3 == 2 || i == movies.Count - 1)
         {
             @:</div>
                 }
@@ -77,7 +77,7 @@
 else
 {
 <div class="text-center">
-<h1>Welcome</h1>
+    <h1>Welcome</h1>
 </div>
 }
 

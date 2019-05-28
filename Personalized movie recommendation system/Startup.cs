@@ -49,6 +49,8 @@ namespace Personalized_movie_recommendation_system
             }).AddRoles<IdentityRole>().AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.AddAntiforgery(o => o.SuppressXFrameOptionsHeader = true);
+            services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -66,7 +68,15 @@ namespace Personalized_movie_recommendation_system
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            app.UseCors(options =>
+            {
+                 options.WithOrigins("http://www.youtube.com").AllowAnyMethod();
+            });
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers["X-Frame-Options"] = "ALLOWALL";
+                await next();
+            });
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();

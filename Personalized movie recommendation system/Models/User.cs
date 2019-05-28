@@ -11,11 +11,10 @@ namespace Personalized_movie_recommendation_system.Models
 {
     public class User : IdentityUser
     {
-        public string Favorites_Json { get; set; }
+        public ICollection<FavoriteMovie> Favorites { get; set; }
 
-        public string Watching_Json { get; set; }
+        public ICollection<WatchedMovie> WatchedMovies { get; set; }
 
-        public string Watched_Json { get; set; }
     }
 
 }

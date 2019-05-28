@@ -15,8 +15,10 @@ namespace TheMovieDb.API
         static void Main(string[] args)
         {
             UpdateGenreDb();
+
+            UpdateMovieDb();
         }
-        
+
         static void UpdateGenreDb()
         {
             using (SqlConnection connection = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Personalized_movie_recommendation_system_DB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"))
@@ -56,41 +58,59 @@ namespace TheMovieDb.API
                 {
                     command.ExecuteNonQuery();
                 }
-                for (int i = 1; i <= 25; i++)
+                for (int i = 1; i <= 19; i++)
                 {
                     Console.WriteLine("Downloading page " + i + "...");
-                    JsonConvert.DeserializeObject<Rootobject>((new System.Net.WebClient()).DownloadString("https://api.themoviedb.org/3/discover/movie?api_key=1b6317b113e3b3650be749f272d69cf8&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=" + i)).results.ToList().ForEach(res =>
+                    try
                     {
-                        using (SqlCommand command = new SqlCommand(string.Format("INSERT INTO dbo.Movies (Id, Title, Description, ReleaseDate, Rating, GenreId, ImageUrl, VoteCount, Image, Video, VideoUrl) VALUES (@id, @Title, @Description, @ReleaseDate, @Rating, @GenreId, @ImageUrl, @Votes, @Image, @Video, @VideoUrl)")) { Connection = connection })
+                        JsonConvert.DeserializeObject<Rootobject>((new System.Net.WebClient()).DownloadString("https://api.themoviedb.org/3/discover/movie?api_key=1b6317b113e3b3650be749f272d69cf8&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=" + i)).results.ToList().ForEach(res =>
                         {
-                            command.Parameters.AddWithValue("@id", res.id);
-                            command.Parameters.AddWithValue("@Title", res.title);
-                            command.Parameters.AddWithValue("@Description", res.overview);
-                            command.Parameters.AddWithValue("@ReleaseDate", res.release_date);
-                            command.Parameters.AddWithValue("@Rating", res.vote_average);
-                            command.Parameters.AddWithValue("@GenreId", (res.genre_ids.Length > 0) ? res.genre_ids[0] : -1);
-                            command.Parameters.AddWithValue("@ImageUrl", res.poster_path);
-                            command.Parameters.AddWithValue("@Votes", res.vote_count);
-
-                            
-                            if (!File.Exists("temp" + res.poster_path))
-                                (new System.Net.WebClient()).DownloadFile("https://image.tmdb.org/t/p/w500" + res.poster_path, "temp" + res.poster_path);
-                            byte[] data = System.IO.File.ReadAllBytes("temp" + res.poster_path);
-                            command.Parameters.Add("@Image", SqlDbType.VarBinary, -1).Value = data;
-
-                            command.Parameters.AddWithValue("@Video", res.video);
-
-                            if(res.video)
+                            using (SqlCommand command = new SqlCommand(string.Format("INSERT INTO dbo.Movies (Id, Title, Description, ReleaseDate, Rating, GenreId, ImageUrl, VoteCount, Image, VideoUrl) VALUES (@id, @Title, @Description, @ReleaseDate, @Rating, @GenreId, @ImageUrl, @Votes, @Image, @VideoUrl)")) { Connection = connection })
                             {
-                                var v = JsonConvert.DeserializeObject<VideoRootObject.Rootobject>((new System.Net.WebClient()).DownloadString("https://api.themoviedb.org/3/movie/" + i + "/videos?api_key=1b6317b113e3b3650be749f272d69cf8&language=en-US")).results.ToList().First();
+                                command.Parameters.AddWithValue("@id", res.id);
+                                command.Parameters.AddWithValue("@Title", res.title);
+                                command.Parameters.AddWithValue("@Description", res.overview);
+                                command.Parameters.AddWithValue("@ReleaseDate", res.release_date);
+                                command.Parameters.AddWithValue("@Rating", res.vote_average);
+                                command.Parameters.AddWithValue("@GenreId", (res.genre_ids.Length > 0) ? res.genre_ids[0] : -1);
+                                command.Parameters.AddWithValue("@ImageUrl", res.poster_path);
+                                command.Parameters.AddWithValue("@Votes", res.vote_count);
 
-                                string url = "https://" + v.site + ;
-                                command.Parameters.AddWithValue("@VideoUrl", url);
+
+                                if (!File.Exists("temp" + res.poster_path))
+                                    (new System.Net.WebClient()).DownloadFile("https://image.tmdb.org/t/p/w500" + res.poster_path, "temp" + res.poster_path);
+                                byte[] data = System.IO.File.ReadAllBytes("temp" + res.poster_path);
+                                command.Parameters.Add("@Image", SqlDbType.VarBinary, -1).Value = data;
+
+                                try
+                                {
+                                    var v = JsonConvert.DeserializeObject<VideoRootObject.Rootobject>((new System.Net.WebClient()).DownloadString("https://api.themoviedb.org/3/movie/" + res.id + "/videos?api_key=1b6317b113e3b3650be749f272d69cf8&language=en-US")).results?.ToList().First();
+
+                                    string url = "https://www." + v.site.ToLower() + ".com/embed/" + v.key;
+                                    command.Parameters.AddWithValue("@VideoUrl", url);
+                                }
+                                catch
+                                {
+                                    Console.Write("*");
+                                    command.Parameters.AddWithValue("@VideoUrl", string.Empty);
+                                }
+                              
+                                try
+                                {
+                                    command.ExecuteNonQuery();
+                                }
+                                catch (Exception)
+                                {
+                                    Console.Write("*");
+                                }
                             }
+                        });
 
-                            command.ExecuteNonQuery();
-                        }
-                    });
+                    }
+                    catch
+                    {
+                        Console.Write("+");
+                    }
                 }
             }
         }

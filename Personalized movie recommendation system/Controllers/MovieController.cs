@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Personalized_movie_recommendation_system.Data;
 using Personalized_movie_recommendation_system.Models;
 
@@ -16,6 +17,7 @@ namespace Personalized_movie_recommendation_system.Controllers
         {
             _context = context;
         }
+
 
         public ViewResult MoviePage(int id)
         {
