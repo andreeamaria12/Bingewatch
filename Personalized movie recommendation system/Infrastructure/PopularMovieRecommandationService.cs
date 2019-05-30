@@ -22,7 +22,8 @@ namespace Personalized_movie_recommendation_system.Infrastructure
         {
             //TODO: base suggestions on user
             return _context.Movies
-                .Include(x=>x.UserFavorite)
+                .Include(x => x.Favorites)
+                .Include(w => w.UserWatchedMovie)
                 .OrderByDescending(m => m.Rating).ToList();
         }
     }

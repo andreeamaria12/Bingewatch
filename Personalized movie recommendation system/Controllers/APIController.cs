@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
 using Personalized_movie_recommendation_system.Data;
 using Personalized_movie_recommendation_system.Models;
 
@@ -47,9 +47,10 @@ namespace Personalized_movie_recommendation_system.Controllers
             if (!_context.Movies.Any(m => m.Id == id))
                 return NotFound();
             User user = await _userManager.FindByNameAsync(User.Identity.Name);
-            Movie movie = _context.Movies.First(m => m.Id == id);
+            Movie movie = _context.Movies.Include(x => x.Favorites)
+                .Include(w => w.UserWatchedMovie).First(m => m.Id == id);
 
-            FavoriteMovie favoriteMovie = new FavoriteMovie
+            FavoriteMovieEntry favoriteMovie = new FavoriteMovieEntry
             {
                 UserId = user.Id,
                 User = user,
@@ -58,12 +59,17 @@ namespace Personalized_movie_recommendation_system.Controllers
             };
             _context.FavoriteMovies.Add(favoriteMovie);
 
-            user.Favorites = user.Favorites ?? new List<FavoriteMovie>();
+            user.Favorites ??= new List<FavoriteMovieEntry>();
             user.Favorites.Add(favoriteMovie);
 
-            movie.UserFavorite = movie.UserFavorite ?? new List<FavoriteMovie>();
-            movie.UserFavorite.Add(favoriteMovie);
+            movie.Favorites ??= new List<FavoriteMovieEntry>();
+            movie.Favorites.Add(favoriteMovie);
 
+            await _userManager.UpdateAsync(user);
+
+            //await TryUpdateModelAsync(user);
+
+            _context.SaveChanges();
 
             return Created("test", user.Favorites.Select(fav => fav.MovieId));
         }
@@ -77,16 +83,24 @@ namespace Personalized_movie_recommendation_system.Controllers
                 return NotFound();
 
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
-
-            if (!user.Favorites.Any(fav => fav.MovieId == id))
+            user.Favorites = _context.FavoriteMovies.Where(f => f.UserId == user.Id).ToList();
+            if (user.Favorites == null || !user.Favorites.Any(fav => fav.MovieId == id))
                 return NotFound();
+                
+            Movie movie = _context.Movies.First(m => m.Id == id);
 
-            FavoriteMovie favoriteMovie = user.Favorites.First(fav => fav.MovieId == id);
+            FavoriteMovieEntry favoriteMovie = user.Favorites.First(fav => fav.MovieId == id);
             user.Favorites.Remove(favoriteMovie);
-            _context.Movies.First(m => m.Id == id).UserFavorite.Remove(favoriteMovie);
+            movie.Favorites.Remove(favoriteMovie);
             _context.FavoriteMovies.Remove(favoriteMovie);
 
-            return Created("test", user.Favorites);
+            await _userManager.UpdateAsync(user);
+
+            //await TryUpdateModelAsync(user);
+
+            _context.SaveChanges();
+
+            return Created("test", user.Favorites.Select(f => f.MovieId));
         }
     }
 }

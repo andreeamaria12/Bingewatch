@@ -1,10 +1,27 @@
 ﻿@using Newtonsoft.Json
 @using System.Collections.Generic
 @{
-    ViewData["Title"] = "MyList";
+    ViewData["Title"] = "Bingewatch";
 }
 @inject ApplicationDbContext context
 @inject UserManager<User> userManager
+
+@model UserListsViewModel
+
+<script>
+    function removeFavorite(id) {
+
+        $.ajax({
+            url: '/API/RemoveFavorite?id=' + id,
+            type: 'POST',
+            success: function (res) {
+                console.log(res);
+                location.reload();
+            },
+            error: function (error) { console.log(error) }
+        });
+    }
+</script>
 
 @if (User.Identity.IsAuthenticated)
 {
@@ -18,29 +35,22 @@
             <th><h1>Watched</h1></th>
         </tr>
         <tr>
-            @if (Model != null)
+            @if (Model.Favorites != null)
             {
-               /* List<Movie> favorites = new List<Movie>();
-                foreach (var favMovie in user.Favorites)
-                {
-                    favorites.Add(context.Movies.First(movie => movie.Id == favMovie.MovieId));
-                }*/
-
-                @foreach (var fav in Model)
-                {
-                    <td>
+                <td>
+                    @foreach (var fav in Model.Favorites)
+                    {
                         <div class="col-sm-6 col-md-4">
                             <div class="thumbnail">
                                 <img src="@("api/images?name=" + fav.ImageUrl)" alt="..." width="100">
                                 <div class="caption">
                                     <h3>@fav.Title</h3>
-                                    <p><a href="/Movie/MoviePage?id=@fav.Id" class="btn btn-primary" role="button">Read more</a> <a class="btn btn-default" id="f-@fav.Id" role="button" onclick="switchFavorite(@fav.Id);">Remove from my list</a></p>
+                                    <p><a href="/Movie/MoviePage?id=@fav.Id" class="btn btn-outline-secondary" role="button">Read more</a> <a class="btn btn-light" role="button" onclick="removeFavorite(@fav.Id);">Remove from my list</a></p>
                                 </div>
                             </div>
                         </div>
-                    </td>
-                }
-
+                    }
+                </td>
             }
             else
             {

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Personalized_movie_recommendation_system.Data;
 using Personalized_movie_recommendation_system.Infrastructure;
@@ -26,14 +27,15 @@ namespace Personalized_movie_recommendation_system.Controllers
         {
 
             if (User.Identity.IsAuthenticated)
+            {
+                ViewBag.Genres = new SelectList(_context.Genres.Select(g => g.Name).Distinct());
                 return View(_context.Movies);
+            }
             else
+            {
                 return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
+            }
+                
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

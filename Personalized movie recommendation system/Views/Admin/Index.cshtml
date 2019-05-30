@@ -5,7 +5,7 @@
 
 @model UserViewModel
 
-<div class="bg-primary m-1 p-1 text-white"><h4>User Accounts</h4></div>
+<div class="bg-dark m-1 p-1 text-white"><h4>User Accounts</h4></div>
 
 
 @if (Model.Users.Count() + Model.Admins.Count() == 0)
@@ -25,7 +25,7 @@ else
                 <td>@admin.Email</td>
                 <td>
                     <form asp-action="Delete" asp-route-id="@admin.Id" method="post">
-                        <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@admin.Id">Edit</a>
+                        <a class="btn btn-sm btn-secondary" asp-action="Edit" asp-route-id="@admin.Id">Edit</a>
                         <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                     </form>
                 </td>
@@ -44,7 +44,7 @@ else
                 <td>@user.Email</td>
                 <td>
                     <form asp-action="Delete" asp-route-id="@user.Id" method="post">
-                        <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@user.Id">Edit</a>
+                        <a class="btn btn-sm btn-secondary" asp-action="Edit" asp-route-id="@user.Id">Edit</a>
                         <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                     </form>
                 </td>

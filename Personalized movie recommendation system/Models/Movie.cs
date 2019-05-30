@@ -36,7 +36,7 @@ namespace Personalized_movie_recommendation_system.Models
 
         public string VideoUrl { get; set; }
 
-        public ICollection<FavoriteMovie> UserFavorite { get; set; }
+        public ICollection<FavoriteMovieEntry> Favorites { get; set; }
 
         public ICollection<WatchedMovie> UserWatchedMovie { get; set; }
 

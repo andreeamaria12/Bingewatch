@@ -20,11 +20,18 @@ namespace Personalized_movie_recommendation_system.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> IndexAsync()
+        public async Task<IActionResult> Index()
         {
             User user = await _userManager.FindByNameAsync(User.Identity.Name);
 
-            return View(_context.FavoriteMovies.Where(fav => fav.UserId == user.Id).ToList());
+            UserListsViewModel model = new UserListsViewModel();
+            List<FavoriteMovieEntry> favorites = _context.FavoriteMovies.Where(fav => fav.UserId == user.Id).ToList();
+            model.Favorites = favorites.Select(el => _context.Movies.Where(m => m.Id == el.MovieId).First()).ToList();
+
+            List<WatchedMovie> watched = _context.WatchedMovies.Where(w => w.UserId == user.Id).ToList();
+            model.Watched = watched.Select(el => _context.Movies.Where(m => m.Id == el.MovieId).First()).ToList();
+
+            return View(model);
         }
     }
 }

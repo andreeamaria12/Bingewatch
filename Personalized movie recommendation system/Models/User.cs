@@ -11,7 +11,7 @@ namespace Personalized_movie_recommendation_system.Models
 {
     public class User : IdentityUser
     {
-        public ICollection<FavoriteMovie> Favorites { get; set; }
+        public ICollection<FavoriteMovieEntry> Favorites { get; set; }
 
         public ICollection<WatchedMovie> WatchedMovies { get; set; }
 
