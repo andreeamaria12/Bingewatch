@@ -6,7 +6,7 @@
 }
 
 <div class="text-center">
-    <a asp-action="Create" class="btn btn-secondary">Add Movie</a>
+    <a asp-action="Create" class="btn btn-light">Add Movie</a>
 </div>
 <table class="table table-striped table-bordered table-sm">
     <tr>
@@ -22,11 +22,11 @@
             <td> <img src="@("api/images?name=" + item.ImageUrl)" alt="..." width="100"></td>
             <td class="text-center">
                 <form asp-action="Delete" method="post">
-                    <a asp-action="Edit" class="btn btn-sm btn-outline-secondary" asp-route-Id="@item.Id">
+                    <a asp-action="Edit" class="btn btn-sm btn-light" asp-route-Id="@item.Id">
                         Edit
                     </a>
                     <input type="hidden" name="Id" value="@item.Id" />
-                    <button type="submit" class="btn btn-danger btn-sm">
+                    <button type="submit" class="btn btn-dark btn-sm">
                         Delete
                     </button>
                 </form>

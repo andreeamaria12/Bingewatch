@@ -2,13 +2,37 @@
     ViewData["Title"] = "Bingewatch";
 }
 @using Personalized_movie_recommendation_system.Infrastructure
-
+@using  Newtonsoft.Json;
 @inject IMovieRecommandationService service
-@inject UserManager<User> userManger
+@inject UserManager<User> _userManager
+@inject ApplicationDbContext _context
 
 @if (User.Identity.IsAuthenticated)
 {
     <script>
+
+        $(document).ready(function () {
+            loadThumbnails();
+            $("#genre-dropdown").on('change', function () {
+
+                current = 0;
+                $("#mlist").html("");
+                loadThumbnails();
+            });
+
+            $("#search-in").on('change keydown keyup', function () {
+                current = 0;
+                $("#mlist").html("");
+                loadThumbnails();
+            });
+        });
+
+        $(window).scroll(function() {
+            if ($(window).scrollTop() > 0.8 * $(document).height()) {
+                current += step;
+                loadThumbnails();
+            }
+        });
 
         function switchFavorite(id) {
             if ($("#f-" + id).html() == "Remove from my list")
@@ -24,9 +48,20 @@
                 success: function (res) {
                     console.log(res);
                     $("#f-" + id).html("Remove from my list");
+                    favorites.push(id);
                 },
                 error: function (error) { console.log(error) }
             });
+        }
+
+        var favorites = @JsonConvert.SerializeObject(_context.FavoriteMovies.Where(f => f.UserId == (_userManager.FindByNameAsync(User.Identity.Name).Result).Id).Select(o => o.MovieId).ToList()) ;
+
+        function isInFavorites(id) {
+            for (let i = 0; i < favorites.length; i++) {
+                if (id == favorites[i])
+                    return true;
+            }
+            return false;
         }
 
         function removeFavorite(id) {
@@ -37,64 +72,105 @@
                 success: function (res) {
                     console.log(res);
                     $("#f-" + id).html("Add to my list");
+                    var arr = [];
+                    for (let i = 0; i < favorites.length; i++) {
+                        if (favorites[i] != id)
+                            arr.push(favorites[i]);
+                    }
+                    favorites = arr;
                 },
                 error: function (error) { console.log(error) }
             });
         }
 
+        var step = 21;
+        var current = 0;
+        var ignoreScroll = false;
+        var inQueue = false;
+
+        function buildThumbnail(movie) {
+            var thumbnailTemplate = ' <div class="col-sm-6 col-md-4"> <div class="thumbnail"> <a href="/Movie/MoviePage?id=[4]"><img src="[0]" alt="..." width="200"></a> <div class="caption"> <h3>[1]</h3> <h5>Rating: [2]</h5> <p>[3]</p><p><a href="/Movie/MoviePage?id=[4]" class="btn btn-outline-dark" role="button">Read more</a> <a class="btn btn-light" id="f-[4]" role="button" onclick="switchFavorite([4]);">[5]</a></p></div></div></div>';
+            var result = thumbnailTemplate
+                .replace('[0]', "API/images?name=" + movie.ImageUrl)
+                .replace('[1]', movie.Title)
+                .replace('[2]', movie.Rating)
+                .replace('[3]', movie.Description.substring(0, (movie.Description.length < 100) ? movie.Description.length : 100) + ((movie.Description.length >= 100) ? "..." : ""))
+                .replace('[4]', movie.Id)
+                .replace('[4]', movie.Id)
+                .replace('[4]', movie.Id)
+                .replace('[4]', movie.Id)
+                .replace('[5]', isInFavorites(movie.Id)?"Remove from my list":"Add to my list");
+            return result;
+        }
+
+        function loadThumbnails() {
+            if (!ignoreScroll) {
+                $("#liconc").css({ display: "" });
+                ignoreScroll = true;
+                $.get("API/recommended?startIndex=" + current + "&count=" + step + "&genre=" + $("#genre-dropdown").val() + "&search=" + $("#search-in").val(), function (response) {
+                    var data = JSON.parse(response);
+                    var el = "";
+                    if ($("#search-in").val() != "")
+                        $("#mlist").html('');
+                    console.log("length:" + data.length);
+                    if (data.length == 0 && $("#search-in").val() != "") {
+                        $("#mlist").html("<h2>No movies found</h2>");
+                    }
+                    for (let i = 0; i < data.length; i++) {
+                        if (i % 3 == 0) {
+                            el += '<div class="row">';
+                        }
+                        el += buildThumbnail(data[i]);
+                        if (i % 3 == 2 || i == data.length - 1) {
+                            el += "</div>";
+                            $("#mlist").append(el);
+                            el = "";
+                        }
+                    }
+                    $("#liconc").css({ display: "none" });
+                    ignoreScroll = false;
+                });
+            }
+            else if (!inQueue) {
+                inQueue = true;
+                qHandle = setInterval(handleQueue, 200);
+            }
+        }
+
+        var qHandle;
+
+        function handleQueue() {
+            if (inQueue && !ignoreScroll) {
+                    inQueue = false;
+                loadThumbnails();
+                clearInterval(qHandle);
+                    }
+        }
+
     </script>
     <div class="m-sm-3">
-        <select class="btn btn-secondary dropdown-toggle" asp-items="ViewBag.Genres">
+        <select id="genre-dropdown" class="btn btn-light dropdown-toggle" asp-items="ViewBag.Genres">
             <option selected value="">All genres</option>
         </select>
 
         <form class="form-inline float-right">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit">Search</button>
+            <input id="search-in" class="form-control mr-sm-2" style="width:300px;" type="search" placeholder="Search" aria-label="Search">
         </form>
     </div>
 
-    @model IEnumerable<Movie>
-
-    List<Movie> movies = service.GetRecommendedMovies();
-    User user = await userManger.FindByNameAsync(User.Identity.Name);
-
-    <div>
-        @for (var i = 0; i < movies.Count; i++)
-        {
-            @if (i % 3 == 0)
-            {
-                @:<div class="row">
-                }
-            string btnMessage = movies[i].Favorites.Any(x => x.UserId == user.Id) ? "Remove from my list" : "Add to my list";
-            <div class="col-sm-6 col-md-4">
-                <div class="thumbnail">
-                    <img src="@("api/images?name=" + movies[i].ImageUrl)" alt="..." width="200">
-                    <div class="caption">
-                        <h3>@movies[i].Title</h3>
-                        <h5>Rating: @movies[i].Rating</h5>
-                        <p>@(movies[i].Description.Substring(0, (movies[i].Description.Length < 200) ? movies[i].Description.Length : 200) + ((movies[i].Description.Length >= 200) ? "..." : string.Empty))</p>
-                        <p><a href="/Movie/MoviePage?id=@movies[i].Id" class="btn btn-outline-secondary" role="button">Read more</a> <a class="btn btn-light" id="f-@movies[i].Id" role="button" onclick="switchFavorite(@movies[i].Id);">@btnMessage</a></p>
-                    </div>
-                </div>
-            </div>
-
-            @if (i % 3 == 2 || i == movies.Count - 1)
-            {
-            @:</div>
-        }
-
-
-
-        }
+    <div id="mlist">
     </div>
+    <center id="liconc">
+        <div id="licon" class="spinner-border" role="status"> <span class="sr-only">Loading...</span> </div>
+    </center>
 
 
 }
 else
 {
     <div class="text-center">
-        <h1>Welcome</h1>
+        <h1>Welcome to Bingewatch</h1>
+
     </div>
 }
 

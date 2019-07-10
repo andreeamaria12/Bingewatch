@@ -22,21 +22,23 @@ namespace Personalized_movie_recommendation_system.Data
 
         public DbSet<Genre> Genres { get; set; }
 
-        public DbSet<FavoriteMovieEntry> FavoriteMovies { get; set; }
+        public DbSet<FavoriteMovie> FavoriteMovies { get; set; }
 
         public DbSet<WatchedMovie> WatchedMovies { get; set; }
+
+        public DbSet<UserMovieRating> UserMovieRatings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<FavoriteMovieEntry>()
+            builder.Entity<FavoriteMovie>()
                 .HasKey(x => new { x.MovieId, x.UserId });
-            builder.Entity<FavoriteMovieEntry>()
+            builder.Entity<FavoriteMovie>()
                 .HasOne(x => x.User)
                 .WithMany(u => u.Favorites)
                 .HasForeignKey(x => x.UserId);
-            builder.Entity<FavoriteMovieEntry>()
+            builder.Entity<FavoriteMovie>()
                 .HasOne(x => x.Movie)
                 .WithMany(m => m.Favorites)
                 .HasForeignKey(x => x.MovieId);
@@ -51,6 +53,17 @@ namespace Personalized_movie_recommendation_system.Data
             builder.Entity<WatchedMovie>()
                 .HasOne(x => x.Movie)
                 .WithMany(m => m.UserWatchedMovie)
+                .HasForeignKey(x => x.MovieId);
+
+            builder.Entity<UserMovieRating>()
+                .HasKey(w => new { w.MovieId, w.UserId });
+            builder.Entity<UserMovieRating>()
+                .HasOne(x => x.User)
+                .WithMany(u => u.UserMovieRatings)
+                .HasForeignKey(x => x.UserId);
+            builder.Entity<UserMovieRating>()
+                .HasOne(x => x.Movie)
+                .WithMany(m => m.UserMovieRatings)
                 .HasForeignKey(x => x.MovieId);
 
         }

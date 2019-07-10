@@ -16,6 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Personalized_movie_recommendation_system.Models;
 using Personalized_movie_recommendation_system.Infrastructure;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Personalized_movie_recommendation_system
 {
@@ -28,18 +30,15 @@ namespace Personalized_movie_recommendation_system
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
             services.AddTransient<IPasswordValidator<User>, CustomPasswordValidator>();
-            services.AddTransient<IMovieRecommandationService, PopularMovieRecommandationService>();
+            services.AddTransient<IMovieRecommandationService, MLMovieRecommandationService>(); //PopularMovieRecommandationService>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(

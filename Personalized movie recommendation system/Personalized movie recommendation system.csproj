@@ -8,6 +8,10 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Data\AppDbContext.cs" />
     <Compile Remove="Data\Migrations\20190517234651_MovieDB.cs" />
@@ -39,7 +43,21 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.ML" Version="1.0.0" />
+    <PackageReference Include="Microsoft.ML.Recommender" Version="0.12.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\MovieRecommandationML\MovieRecommandationML.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Reference Include="System.Drawing">
+      <HintPath>C:\Windows\WinSxS\msil_system.drawing_b03f5f7f11d50a3a_10.0.17134.1_none_4c89918987da4194\System.Drawing.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

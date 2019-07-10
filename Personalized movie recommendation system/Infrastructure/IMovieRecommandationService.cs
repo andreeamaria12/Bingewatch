@@ -8,6 +8,10 @@ namespace Personalized_movie_recommendation_system.Infrastructure
 {
     public interface IMovieRecommandationService
     {
-        List<Movie> GetRecommendedMovies();
+        List<Movie> GetRecommendedMovies(User user);
+
+        List<Movie> GetRecommendedMovies(User user, int genre);
+
+        List<Movie> GetRecommendedMovies(User user, string genre);
     }
 }

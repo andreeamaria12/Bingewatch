@@ -25,8 +25,8 @@ else
                 <td>@admin.Email</td>
                 <td>
                     <form asp-action="Delete" asp-route-id="@admin.Id" method="post">
-                        <a class="btn btn-sm btn-secondary" asp-action="Edit" asp-route-id="@admin.Id">Edit</a>
-                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        <a class="btn btn-sm btn-outline-dark" asp-action="Edit" asp-route-id="@admin.Id">Edit</a>
+                        <button type="submit" class="btn btn-sm btn-dark">Delete</button>
                     </form>
                 </td>
             </tr>
@@ -44,8 +44,8 @@ else
                 <td>@user.Email</td>
                 <td>
                     <form asp-action="Delete" asp-route-id="@user.Id" method="post">
-                        <a class="btn btn-sm btn-secondary" asp-action="Edit" asp-route-id="@user.Id">Edit</a>
-                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        <a class="btn btn-sm btn-outline-dark" asp-action="Edit" asp-route-id="@user.Id">Edit</a>
+                        <button type="submit" class="btn btn-sm btn-dark">Delete</button>
                     </form>
                 </td>
             </tr>

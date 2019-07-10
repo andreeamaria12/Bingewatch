@@ -1,21 +1,163 @@
-﻿
+﻿@using  Newtonsoft.Json;
 @{
     ViewData["Title"] = "Bingewatch";
 }
 @model Movie
 @inject ApplicationDbContext context
+@inject UserManager<User> userManager
+
+    <link rel="stylesheet" href="~/css/rating.css" />
+
+@if (User.Identity.IsAuthenticated)
+    {
+        User user = await userManager.FindByNameAsync(User.Identity.Name);
+        string btnMessage = context.FavoriteMovies.Where(f => f.UserId == user.Id).ToList().Where(m => m.MovieId == Model.Id).Any(x => x.UserId == user.Id) ? "Remove from my list" : "Add to my list";
+
+    <script>
+       $(document).ready(function () {
+            var tag = document.createElement('script');
+
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+            var player = document.getElementById("player");
+
+           for (let i = 0; i <= 5; i++) {
+            if (i != 0) {
+                $("#star"+i).on("click", function (e) {
+                 $.ajax({
+                 url: '/RateMovie?id=' + movieId + '&rating=' + i ,
+                    type: 'POST',
+                    success: function (res) {
+                        console.log(res);
+                        $("#star" + i).css({"color" : "#FFD700"});
+                },
+                    error: function (error) { console.log(error) }
+                });
+            });
+            }
+            if (i != 5) {
+                $("#star"+i+"half").on("click", function (e) {
+                 $.ajax({
+                 url: '/RateMovie?id=' + movieId + '&rating=' + i + '.5',
+                    type: 'POST',
+                    success: function (res) {
+                        console.log(res);
+                        $("#star" + i +"half").css({"color" : "#FFD700"});
+                },
+                    error: function (error) { console.log(error) }
+                });
+                });
+            }
+           }
+           $.get("/GetRating?id=" + movieId, function (result) {
+               for (let i = 0.5; i <= parseFloat(result); i += 0.5) {
+                   let c = parseInt(i * 2);
+                   $("#actualstar" + i.toString().replace('.', '')).css({ "color": "#FFD700" });
+               }
+           });
+        });
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                events: {
+            'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        var watched = @JsonConvert.SerializeObject(context.WatchedMovies.Where(f => f.UserId == (userManager.FindByNameAsync(User.Identity.Name).Result).Id).Select(o => o.MovieId).ToList()) ;
+        var movieId = parseInt(window.location.href.substring(window.location.href.indexOf("?id=") + "?id=".length));
+
+
+        function onPlayerReady(event) {
+            console.log('Video is ready to play');
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.ENDED) {
+            addWatchdMovie(movieId);
+        }
+        console.log(event);
+        }
+
+        function stopVideo() {
+            player.stopVideo();
+        }
+
+        function addWatchdMovie(id) {
+                      $.ajax({
+            url: '/API/AddWatchedMovie?id=' + id,
+                        type: 'POST',
+                        success: function (res) {
+                    console.log(res);
+                    watched.push(id);
+                        },
+                        error: function (error) { console.log(error) }
+                       });
+        }
+
+        function switchFavorite(id) {
+            if ($("#f-" + id).html() == "Remove from my list")
+                    removeFavorite(id);
+                else addFavorite(id);
+        }
+        function addFavorite(id) {
+                $.ajax({
+            url: '/API/AddFavorite?id=' + id,
+                    type: 'POST',
+                    success: function (res) {
+                    console.log(res);
+                        $("#f-" + id).html("Remove from my list");
+                },
+                    error: function (error) { console.log(error) }
+            });
+        }
+        function removeFavorite(id) {
+                $.ajax({
+            url: '/API/RemoveFavorite?id=' + id,
+                    type: 'POST',
+                    success: function (res) {
+                    console.log(res);
+                        $("#f-" + id).html("Add to my list");
+                },
+                    error: function (error) { console.log(error) }
+            });
+        }
+    </script>
 
     <div>
         <div class="d-inline-block align-top">
             <img class="d-inline" src="@("/api/images?name=" + Model.ImageUrl)" alt="..." width="200">
         </div>
-        <div class="d-inline-block align-top" style="max-width:500px;">
+        <div class="d-inline-block align-top" style="max-width:800px;">
             <h2>@Model.Title</h2>
             <h5>@context.Genres.Where(g => g.Id == Model.GenreId).FirstOrDefault().Name | @Model.Rating | @(DateTime.Parse(Model.ReleaseDate).Year)</h5>
+            <div style="display: inline-block">
+                <a class="btn btn-light" id="f-@Model.Id" role="button" onclick="switchFavorite(@Model.Id);">@btnMessage</a>
+                <fieldset class="rating">
+                    <input type="radio" id="star5" name="rating" value="5" /><label id="actualstar5" class="full" for="star5" title="Awesome - 5 stars"></label>
+                    <input type="radio" id="star4half" name="rating" value="4 and a half" /><label id="actualstar45" class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
+                    <input type="radio" id="star4" name="rating" value="4" /><label id="actualstar4" class="full" for="star4" title="Pretty good - 4 stars"></label>
+                    <input type="radio" id="star3half" name="rating" value="3 and a half" /><label id="actualstar35" class="half" for="star3half" title="OK - 3.5 stars"></label>
+                    <input type="radio" id="star3" name="rating" value="3" /><label id="actualstar3" class="full" for="star3" title="OK - 3 stars"></label>
+                    <input type="radio" id="star2half" name="rating" value="2 and a half" /><label id="actualstar25" class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
+                    <input type="radio" id="star2" name="rating" value="2" /><label id="actualstar2" class="full" for="star2" title="Kinda bad - 2 stars"></label>
+                    <input type="radio" id="star1half" name="rating" value="1 and a half" /><label id="actualstar15" class="half" for="star1half" title="Bad - 1.5 stars"></label>
+                    <input type="radio" id="star1" name="rating" value="1" /><label id="actualstar1" class="full" for="star1" title="Bad - 1 star"></label>
+                    <input type="radio" id="star0half" name="rating" value="half" /><label id="actualstar05" class="half" for="starhalf" title="Very bad - 0.5 stars"></label>
+                </fieldset>
+            </div>
             <h5>@Model.Description</h5>
         </div>
         <div class="justify-content-center">
-            <iframe width="600" height="400" src="@Model.VideoUrl"></iframe>
+            <center>
+                <iframe id="player" type="text/html" width="640" height="390" src=@(Model.VideoUrl + "?enablejsapi=1&origin=https://localhost:44394") frameborder="0"></iframe>
+            </center>
         </div>
     </div>
 
+
+}

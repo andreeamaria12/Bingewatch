@@ -32,13 +32,13 @@ namespace TheMovieDb.API
                 {
                     command.ExecuteNonQuery();
                 }
-                dynamic whatever = JsonConvert.DeserializeObject("{'genres':[{'id':28,'name':'Action'},{'id':12,'name':'Adventure'},{'id':16,'name':'Animation'},{'id':35,'name':'Comedy'},{'id':80,'name':'Crime'},{'id':99,'name':'Documentary'},{'id':18,'name':'Drama'},{'id':10751,'name':'Family'},{'id':14,'name':'Fantasy'},{'id':36,'name':'History'},{'id':27,'name':'Horror'},{'id':10402,'name':'Music'},{'id':9648,'name':'Mystery'},{'id':10749,'name':'Romance'},{'id':878,'name':'Science Fiction'},{'id':10770,'name':'TV Movie'},{'id':53,'name':'Thriller'},{'id':10752,'name':'War'},{'id':37,'name':'Western'}]}");
+                dynamic Core = JsonConvert.DeserializeObject("{'genres':[{'id':28,'name':'Action'},{'id':12,'name':'Adventure'},{'id':16,'name':'Animation'},{'id':35,'name':'Comedy'},{'id':80,'name':'Crime'},{'id':99,'name':'Documentary'},{'id':18,'name':'Drama'},{'id':10751,'name':'Family'},{'id':14,'name':'Fantasy'},{'id':36,'name':'History'},{'id':27,'name':'Horror'},{'id':10402,'name':'Music'},{'id':9648,'name':'Mystery'},{'id':10749,'name':'Romance'},{'id':878,'name':'Science Fiction'},{'id':10770,'name':'TV Movie'},{'id':53,'name':'Thriller'},{'id':10752,'name':'War'},{'id':37,'name':'Western'}]}");
                 for (int i = 0; i < 19; i++)
                 {
                     using (SqlCommand command = new SqlCommand(string.Format("INSERT INTO dbo.Genres (Id, Name) values (@id, @name)")) { Connection = connection })
                     {
-                        command.Parameters.AddWithValue("@id", Convert.ToInt32(whatever.genres[i].id));
-                        command.Parameters.AddWithValue("@name", Convert.ToString(whatever.genres[i].name));
+                        command.Parameters.AddWithValue("@id", Convert.ToInt32(Core.genres[i].id));
+                        command.Parameters.AddWithValue("@name", Convert.ToString(Core.genres[i].name));
                         command.ExecuteNonQuery();
                     }
                 }

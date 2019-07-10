@@ -1,39 +1,97 @@
 ﻿@model Movie
 @{
-    ViewData["Title"] = "Edit Movie";
     Layout = "_AdminLayout";
 }
 
+@if (Model == null || Model.Title == "")
+{
+    ViewData["Title"] = "Create movie";
+    <div class="bg-light m-1 p-1"><h4>@ViewData["Title"]</h4></div>
+}
+else
+{
+    ViewData["Title"] = "Edit movie";
+    <div class="bg-light m-1 p-1"><h4>@ViewData["Title"]</h4></div>
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js" type="text/javascript"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script>
+<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="Stylesheet" type="text/css" />
+<script>
+    $(document).ready(function () {
+        var $j = jQuery.noConflict();
+        $j("#ReleaseDate").datepicker("option", "dateFormat", "yyyy-mm-dd");
+        $("#GenreId").change(function () {
+            var selectedValue = $(this).val();
+        });
+    });
+</script>
+
+<div style="margin : 0, auto">
     <form asp-action="Edit" method="post">
         <input type="hidden" asp-for="Id" />
-        <div class="form-group">
+        <div class="form-group row">
             <label asp-for="Title"></label>
-            <div><span asp-validation-for="Title" class="text-danger">s</span></div>
-            <input asp-for="Title" class="form-control" />
+            <div><span asp-validation-for="Title" class="text-danger"></span></div>
+            <div class="col-sm-10">
+                <input asp-for="Title" width="100" class="form-control" />
+            </div>
         </div>
-        <div class="form-group">
+        <div class="form-group row">
             <label asp-for="Description"></label>
-            <div><span asp-validation-for="Description" class="text-danger">s</span></div>
-            <textarea asp-for="Description" class="form-control"></textarea>
+            <div><span asp-validation-for="Description" class="text-danger"></span></div>
+            <div class="col-sm-10">
+                <textarea asp-for="Description" width="100" class="form-control"></textarea>
+            </div>
         </div>
-        <div class="form-group">
-            <label asp-for="ReleaseDate"></label>
-            <div><span asp-validation-for="ReleaseDate" class="text-danger">s</span></div>
-            <input asp-for="ReleaseDate" class="form-control" />
+        <div class="form-group row">
+            <label asp-for="ReleaseDate">Release date</label>
+            <div><span asp-validation-for="ReleaseDate" class="text-danger"></span></div>
+            <div class="col-sm-10">
+                <input type="date" id="ReleaseDate" asp-for="ReleaseDate" width="100" class="form-control" />
+            </div>
         </div>
-        <div class="form-group">
+        <div class="form-group row">
             <label asp-for="Rating"></label>
-            <div><span asp-validation-for="Rating" class="text-danger">s</span></div>
-            <input asp-for="Rating" class="form-control" />
+            <div><span asp-validation-for="Rating" class="text-danger"></span></div>
+            <div class="col-sm-10">
+                <input asp-for="Rating" width="100" class="form-control" />
+            </div>
         </div>
-        <div class="form-group">
-            <select asp-for="GenreId" asp-items="ViewBag.Genres">
-                <option disabled selected value="">Select a Genre</option>
-            </select>
+        <div class="form-group row">
+            <div><span asp-validation-for="GenreId" class="text-danger"></span></div>
+            <div class="col-sm-10">
+                <select asp-for="GenreId" asp-items="ViewBag.Genres">
+                    <option disabled selected value="">Select a Genre</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="VideoUrl">Video path</label>
+            <div><span asp-validation-for="VideoUrl" class="text-danger"></span></div>
+            <div class="col-sm-10">
+                <input asp-for="VideoUrl" width="100" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="Image"></label>
+            <div><span asp-validation-for="Image" class="text-danger"></span></div>
+            <div class="col-sm-10">
+                @if (Model != null)
+                {
+                    if (Model.ImageUrl == null) { Model.ImageUrl = string.Empty; }
+                    <input asp-for="Image" type="image" src="@("/api/images?name=" + Model.ImageUrl)" class="form-control-file" />
+                }
+                else
+                {
+                    <input asp-for="Image" type="image" src="" class="form-control-file" />
+                }
+            </div>
+            <input type="file" name="pic" accept="image/*">
         </div>
         <div class="text-center">
-            <button class="btn btn-primary" type="submit">Save</button>
-            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            <button class="btn btn-light" type="submit">Save</button>
+            <a asp-action="Index" class="btn btn-outline-dark">Cancel</a>
         </div>
     </form>
+</div>
 

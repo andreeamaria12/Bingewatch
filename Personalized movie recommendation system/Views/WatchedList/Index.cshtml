@@ -10,32 +10,47 @@
 @model IEnumerable<Movie>
 
 <script>
+    function switchFavorite(id) {
+        if ($("#f-" + id).html() == "Remove from my list")
+            removeFavorite(id);
+        else addFavorite(id);
+    }
+    function addFavorite(id) {
+        $.ajax({
+            url: '/API/AddFavorite?id=' + id,
+            type: 'POST',
+            success: function (res) {
+                console.log(res);
+                $("#f-" + id).html("Remove from my list");
+            },
+            error: function (error) { console.log(error) }
+        });
+    }
     function removeFavorite(id) {
-
         $.ajax({
             url: '/API/RemoveFavorite?id=' + id,
             type: 'POST',
             success: function (res) {
                 console.log(res);
-                location.reload();
+                $("#f-" + id).html("Add to my list");
             },
             error: function (error) { console.log(error) }
         });
     }
 </script>
 
-<h2>Favorites</h2>
+<h2>Watched Movies</h2>
 
 @if (User.Identity.IsAuthenticated)
 {
     User user = await userManager.FindByNameAsync(User.Identity.Name);
+    List<Movie> movies = Model.ToList();
+    List<FavoriteMovie> favorites = ViewBag.FavoriteMovies;
 
-
-    @if (Model != null)
+    @if (movies.Count > 0)
     {
-        List<Movie> movies = Model.ToList();
-        <div>
 
+        <div>
             <div>
                 @for (var i = 0; i < movies.Count; i++)
                 {
@@ -43,7 +58,7 @@
                     {
                         @:<div class="row">
                         }
-                    string btnMessage = movies[i].Favorites.Any(x => x.UserId == user.Id) ? "Remove from my list" : "Add to my list";
+                    string btnMessage = favorites.Where(m => m.MovieId == movies[i].Id).Any(x => x.UserId == user.Id) ? "Remove from my list" : "Add to my list";
                     <div class="col-sm-6 col-md-4">
                         <div class="thumbnail">
                             <a href="/Movie/MoviePage?id=@movies[i].Id"><img src="@("api/images?name=" + movies[i].ImageUrl)" alt="..." width="200"></a>
@@ -51,7 +66,7 @@
                                 <h3>@movies[i].Title</h3>
                                 <h5>Rating: @movies[i].Rating</h5>
                                 <p>@(movies[i].Description.Substring(0, (movies[i].Description.Length < 200) ? movies[i].Description.Length : 200) + ((movies[i].Description.Length >= 200) ? "..." : string.Empty))</p>
-                                <p><a href="/Movie/MoviePage?id=@movies[i].Id" class="btn btn-outline-dark" role="button">Read more</a> <button type="button" class="btn btn-light" id="f-@movies[i].Id" onclick="removeFavorite(@movies[i].Id);">@btnMessage</button></p>
+                                <p><a href="/Movie/MoviePage?id=@movies[i].Id" class="btn btn-outline-dark" role="button">Read more</a> <a class="btn btn-light" id="f-@movies[i].Id" role="button" onclick="switchFavorite(@movies[i].Id);">@btnMessage</a></p>
                             </div>
                         </div>
                     </div>
@@ -60,17 +75,12 @@
                     {
                     @:</div>
                 }
-
-
-
                 }
             </div>
         </div>
     }
     else
     {
-        <h5>You don't have any favorite movie.</h5>
+        <h5>You don't have any watched movie.</h5>
     }
-
-
 }
