@@ -2,7 +2,6 @@
 
 namespace MovieRecommandationML
 {
-    // <SnippetMovieRatingClass>
     public class MovieRating
     {
         [LoadColumn(0)]
@@ -12,13 +11,10 @@ namespace MovieRecommandationML
         [LoadColumn(2)]
         public float Label;
     }
-    // </SnippetMovieRatingClass>
 
-    // <SnippetPredictionClass>
     public class MovieRatingPrediction
     {
         public float Label;
         public float Score;
     }
-    // </SnippetPredictionClass>
 }

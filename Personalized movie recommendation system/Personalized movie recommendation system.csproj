@@ -60,4 +60,11 @@
     </Reference>
   </ItemGroup>
 
+
+  <ItemGroup>
+    <None Update="Data\recommendation-ratings-train.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

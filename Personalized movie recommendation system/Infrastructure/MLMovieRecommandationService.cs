@@ -29,12 +29,9 @@ namespace Personalized_movie_recommendation_system.Infrastructure
             if (!Directory.Exists("Data"))
                 Directory.CreateDirectory("Data");
             _mlContext = new MLContext();
-            CreateCSVs(user.Id);
-            IDataView trainingDataView = MovieRecommandationML.Core.LoadData(_mlContext).training;
-            IDataView testDataView = MovieRecommandationML.Core.LoadData(_mlContext).test;
+            CreateCSV();
+            IDataView trainingDataView = MovieRecommandationML.Core.LoadData(_mlContext);
             _model = MovieRecommandationML.Core.BuildAndTrainModel(_mlContext, trainingDataView);
-            MovieRecommandationML.Core.EvaluateModel(_mlContext, testDataView, _model);
-            MovieRecommandationML.Core.SaveModel(_mlContext, trainingDataView.Schema, _model);
 
             user.Favorites = _context.FavoriteMovies.Where(f => f.UserId == user.Id).ToList();
             user.Favorites ??= new List<FavoriteMovie>();
@@ -78,13 +75,9 @@ namespace Personalized_movie_recommendation_system.Infrastructure
         #region ML
 
 
-        private void CreateCSVs(string userid)
+        private void CreateCSV()
         {
             var trainingDataPath = Path.Combine(Environment.CurrentDirectory, "Data", "recommendation-ratings-train.csv");
-            var testDataPath = Path.Combine(Environment.CurrentDirectory, "Data", "recommendation-ratings-test.csv");
-            Random random = new Random();
-            if (File.Exists(testDataPath))
-                File.Delete(testDataPath);
             if (File.Exists(trainingDataPath))
                 File.Delete(trainingDataPath);
             using (StreamWriter sw = new StreamWriter(trainingDataPath))
@@ -92,20 +85,10 @@ namespace Personalized_movie_recommendation_system.Infrastructure
                 _context.UserMovieRatings.ToList().ForEach(rating => 
                 {
                     sw.Write(rating.UserId + "," + rating.MovieId + "," + rating.Rating + "\n");
-                    //sw.Write(random.Next(5) + "," + rating.MovieId + "," + rating.Rating + "\n");
                 });
                 sw.Close();
             }
 
-            using (StreamWriter sw = new StreamWriter(testDataPath))
-            {
-                _context.Movies.ToList().ForEach(m =>
-                {
-                    sw.Write(userid + "," + m.Id + "," + m.Rating + "\n");
-                    //sw.Write(random.Next(5) + "," + m.Id + "," + m.Rating + "\n");
-                });
-                sw.Close();
-            }
         }
 
 
